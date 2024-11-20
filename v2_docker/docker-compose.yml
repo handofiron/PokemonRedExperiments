@@ -1,0 +1,23 @@
+volumes:
+  runs_data:  # Define a named volume
+
+services:
+  app:
+    image: pokemon_red_automation:latest
+    container_name: pokered
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    user: "5678"
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - runs_data:/app/runs

@@ -1,0 +1,27 @@
+volumes:
+  runs_data:  # Define a named volume
+
+services:
+  pokemonredexperimentsv2master:
+    build:
+      context: .  # Use the current directory for the build context
+      dockerfile: ./Dockerfile  # Use your existing Dockerfile
+    image: pokemonredexperimentsv2master:debug  # Use a distinct tag for the debug version
+    container_name: pokered_debug  # Different container name for debugging
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 baseline_fast_v2.py"]
+    ports:
+      - "8080:8080"  # Debug port for remote debugging
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1  # Ensures Python doesn't write .pyc files
+      - PYTHONUNBUFFERED=1  # Prevents Python output from being buffered
+    user: "5678"  # Run as the appuser created in the Dockerfile
+    restart: always  # Restart the container on failure
+    volumes:
+      - runs_data:/app/runs  # Shared volume with the runs directory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
